@@ -23,3 +23,6 @@ TELEGRAM_CHAT_ID = int(os.getenv("TELEGRAM_CHAT_ID", "6123502479"))
 
 # Gemini AI
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+
+# Groq AI (fallback/secondary AI provider)
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
