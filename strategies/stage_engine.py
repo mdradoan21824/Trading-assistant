@@ -93,10 +93,45 @@ def _volume_tag(rvol):
     return ""
 
 
+def _check_established_trend(data):
+    macd = data["macd"]
+    macd_signal = data["macd_signal"]
+    hist = data["histogram_series"]
+
+    if len(hist) < 3:
+        return None
+
+    momentum_improving = hist[-3] < hist[-2] < hist[-1]
+    momentum_weakening = hist[-3] > hist[-2] > hist[-1]
+
+    if macd > macd_signal and momentum_weakening:
+        return {
+            "direction": "BUY",
+            "stage": 3.5,
+            "label": "🟡 Bullish Trend (Momentum weakening — possible pullback/correction)",
+            "checks": [],
+        }
+
+    if macd < macd_signal and momentum_improving:
+        return {
+            "direction": "SELL",
+            "stage": 3.5,
+            "label": "🟡 Bearish Trend (Momentum weakening — possible bounce/correction)",
+            "checks": [],
+        }
+
+    return None
+
+
 def evaluate_stage(data):
     bull_stage, bull_checks = _evaluate_bull_stage(data)
     bear_stage, bear_checks = _evaluate_bear_stage(data)
     rvol = data.get("rvol")
+
+    if bull_stage < 4 and bear_stage < 4:
+        trend_warning = _check_established_trend(data)
+        if trend_warning:
+            return trend_warning
 
     if bull_stage >= bear_stage and bull_stage > 0:
         label = STAGE_LABELS[bull_stage]
