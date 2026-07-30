@@ -225,16 +225,17 @@ class TelegramService:
             return
 
         data = response["data"]
-        candles = data["candles"]
 
-        text = f"📐 {data['symbol']} ({data['interval']})\n\n"
-        text += f"Total candles received: {len(candles)}\n\n"
-        text += "Last 3 candles:\n"
+        text = f"📐 {data['symbol']} ({data['timeframe']})\n\n"
         text += "```\n"
-
-        for candle in candles[-3:]:
-            text += f"{candle}\n"
-
+        text += f"Close        : {data['close']}\n"
+        text += f"RSI(14)      : {data['rsi']}\n"
+        text += f"RSI EMA9     : {data['rsi_ema9']}\n"
+        text += f"MACD         : {data['macd']}\n"
+        text += f"MACD Signal  : {data['macd_signal']}\n"
+        text += f"MACD Hist    : {data['macd_histogram']}\n"
+        text += f"Recent Low   : {data['recent_low']}\n"
+        text += f"Recent High  : {data['recent_high']}\n"
         text += "```"
 
         await update.message.reply_text(text, parse_mode="Markdown")

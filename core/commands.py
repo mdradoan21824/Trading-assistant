@@ -80,5 +80,5 @@ def execute_recap():
 
 
 def execute_forex_test(symbol, timeframe="D"):
-    from market.forex_provider import get_forex_candles
-    return get_forex_candles(symbol, timeframe)
+    from strategies.forex_indicators import get_forex_indicators
+    return get_forex_indicators(symbol, timeframe)
