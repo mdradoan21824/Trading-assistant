@@ -26,3 +26,6 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
 # Groq AI (fallback/secondary AI provider)
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+
+# TwelveData API (for Forex data)
+TWELVEDATA_API_KEY = os.getenv("TWELVEDATA_API_KEY", "")

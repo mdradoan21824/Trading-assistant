@@ -209,6 +209,36 @@ class TelegramService:
 
         await update.message.reply_text(text, parse_mode="Markdown")
 
+    async def forextest(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if not context.args:
+            await update.message.reply_text("Usage:\n/forextest SYMBOL [timeframe]")
+            return
+
+        symbol = context.args[0]
+        timeframe = context.args[1] if len(context.args) > 1 else "D"
+
+        command = f"/forextest {symbol} {timeframe}"
+        response = handle_message(command)
+
+        if not response["success"]:
+            await update.message.reply_text(response["message"])
+            return
+
+        data = response["data"]
+        candles = data["candles"]
+
+        text = f"📐 {data['symbol']} ({data['interval']})\n\n"
+        text += f"Total candles received: {len(candles)}\n\n"
+        text += "Last 3 candles:\n"
+        text += "```\n"
+
+        for candle in candles[-3:]:
+            text += f"{candle}\n"
+
+        text += "```"
+
+        await update.message.reply_text(text, parse_mode="Markdown")
+
     async def recap(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         response = handle_message("/recap")
 
@@ -464,6 +494,7 @@ class TelegramService:
         app.add_handler(CommandHandler("newsalert", self.newsalert))
         app.add_handler(CommandHandler("analyze", self.analyze))
         app.add_handler(CommandHandler("recap", self.recap))
+        app.add_handler(CommandHandler("forextest", self.forextest))
 
         app.job_queue.run_daily(
             self.pre_market_overview,

@@ -7,6 +7,7 @@ from core.commands import (
     execute_overview,
     execute_analyze,
     execute_recap,
+    execute_forex_test,
 )
 
 
@@ -56,6 +57,16 @@ def process_message(text, user=None):
 
     if command == "recap":
         return execute_recap()
+
+    if command == "forextest":
+        if len(parts) < 2:
+            return {
+                "success": False,
+                "message": "Usage: /forextest SYMBOL [timeframe]",
+                "data": {},
+            }
+        timeframe = parts[2] if len(parts) > 2 else "D"
+        return execute_forex_test(parts[1], timeframe)
 
     if command == "watchlist":
         if len(parts) == 1:

@@ -77,3 +77,8 @@ def execute_analyze(symbol):
 def execute_recap():
     from core.recap import build_recap
     return build_recap()
+
+
+def execute_forex_test(symbol, timeframe="D"):
+    from market.forex_provider import get_forex_candles
+    return get_forex_candles(symbol, timeframe)
