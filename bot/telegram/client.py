@@ -176,10 +176,14 @@ class TelegramService:
 
     async def signal(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not context.args:
-            await update.message.reply_text("Usage:\n/signal SYMBOL")
+            await update.message.reply_text("Usage:\n/signal SYMBOL [timeframe]")
             return
 
-        response = handle_message(f"/signal {context.args[0].upper()}")
+        symbol = context.args[0].upper()
+        timeframe = context.args[1].upper() if len(context.args) > 1 else ""
+
+        command = f"/signal {symbol} {timeframe}".strip()
+        response = handle_message(command)
 
         if not response["success"]:
             await update.message.reply_text(response["message"])
@@ -239,6 +243,85 @@ class TelegramService:
         text += "```"
 
         await update.message.reply_text(text, parse_mode="Markdown")
+
+    async def forex(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if not context.args:
+            await update.message.reply_text(
+                "Usage:\n"
+                "/forex watchlist\n"
+                "/forex watchlist add SYMBOL\n"
+                "/forex watchlist remove SYMBOL\n"
+                "/forex overview"
+            )
+            return
+
+        subcommand = context.args[0].lower()
+
+        if subcommand == "overview":
+            response = handle_message("/forex overview")
+
+            if not response["success"]:
+                await update.message.reply_text(response["message"])
+                return
+
+            items = response["data"]["watchlist"]
+
+            if not items:
+                await update.message.reply_text("Forex watchlist is empty.")
+                return
+
+            text = "💱 Forex Overview\n\n"
+            text += "```\n"
+            for item in items:
+                text += f"{item['symbol']:<8} {item['stage_label']}\n"
+            text += "```"
+
+            await update.message.reply_text(text, parse_mode="Markdown")
+            return
+
+        if subcommand == "watchlist":
+            rest = " ".join(context.args[1:]) if len(context.args) > 1 else ""
+            command = f"/forex watchlist {rest}".strip()
+            response = handle_message(command)
+
+            if not response["success"]:
+                await update.message.reply_text(response["message"])
+                return
+
+            data = response["data"]
+
+            if "prices" in data:
+                prices = data["prices"]
+
+                if not prices:
+                    await update.message.reply_text("Forex watchlist is empty.")
+                    return
+
+                text = "💱 Forex Watchlist\n\n"
+                text += "```\n"
+                for item in prices:
+                    price = item.get("price")
+                    change = item.get("change_pct")
+                    if price is None:
+                        text += f"{item['symbol']:<8} N/A\n"
+                        continue
+                    sign = "+" if change and change >= 0 else ""
+                    text += f"{item['symbol']:<8} {price:<9} {sign}{change}%\n"
+                text += "```"
+
+                await update.message.reply_text(text, parse_mode="Markdown")
+                return
+
+            watchlist = data.get("watchlist", [])
+            text = "💱 Forex Watchlist\n\n" + "\n".join(f"• {s}" for s in watchlist)
+            await update.message.reply_text(text)
+            return
+
+        await update.message.reply_text(
+            "Usage:\n"
+            "/forex watchlist\n"
+            "/forex overview"
+        )
 
     async def recap(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         response = handle_message("/recap")
@@ -495,6 +578,7 @@ class TelegramService:
         app.add_handler(CommandHandler("newsalert", self.newsalert))
         app.add_handler(CommandHandler("analyze", self.analyze))
         app.add_handler(CommandHandler("recap", self.recap))
+        app.add_handler(CommandHandler("forex", self.forex))
         app.add_handler(CommandHandler("forextest", self.forextest))
 
         app.job_queue.run_daily(

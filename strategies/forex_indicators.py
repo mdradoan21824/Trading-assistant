@@ -1,6 +1,7 @@
 import pandas as pd
 
 from market.forex_provider import get_forex_candles
+from strategies.price_action import detect_price_action
 from core.response import success, error
 
 
@@ -53,6 +54,7 @@ def get_forex_indicators(symbol, timeframe="D"):
             "macd_signal": round(float(signal_line.iloc[-1]), 5),
             "macd_histogram": round(float(histogram.iloc[-1]), 5),
             "histogram_series": [round(float(x), 5) for x in histogram.tail(5)],
+            "price_action": detect_price_action(candles),
             "candles": candles,
         },
     )

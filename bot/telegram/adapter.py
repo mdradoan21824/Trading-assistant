@@ -8,6 +8,8 @@ from core.commands import (
     execute_analyze,
     execute_recap,
     execute_forex_test,
+    execute_forex_watchlist,
+    execute_forex_overview,
 )
 
 
@@ -38,10 +40,37 @@ def process_message(text, user=None):
         if len(parts) < 2:
             return {
                 "success": False,
-                "message": "Usage: /signal SYMBOL",
+                "message": "Usage: /signal SYMBOL [timeframe]",
                 "data": {},
             }
-        return execute_signal(parts[1])
+        timeframe = parts[2] if len(parts) > 2 else None
+        return execute_signal(parts[1], timeframe)
+
+    if command == "forex":
+        if len(parts) < 2:
+            return {
+                "success": False,
+                "message": "Usage: /forex watchlist | /forex overview",
+                "data": {},
+            }
+
+        subcommand = parts[1].lower()
+
+        if subcommand == "overview":
+            return execute_forex_overview()
+
+        if subcommand == "watchlist":
+            rest = parts[2] if len(parts) > 2 else "list"
+            rest_parts = rest.split(maxsplit=1)
+            action = rest_parts[0].lower()
+            symbol = rest_parts[1] if len(rest_parts) > 1 else None
+            return execute_forex_watchlist(action, symbol)
+
+        return {
+            "success": False,
+            "message": "Usage: /forex watchlist | /forex overview",
+            "data": {},
+        }
 
     if command == "overview":
         return execute_overview()

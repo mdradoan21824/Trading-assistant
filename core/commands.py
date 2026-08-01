@@ -30,7 +30,13 @@ def execute_market():
     return market()
 
 
-def execute_signal(symbol):
+def execute_signal(symbol, timeframe=None):
+    from market.forex_provider import is_forex_symbol
+
+    if is_forex_symbol(symbol):
+        from core.forex_signal import forex_signal
+        return forex_signal(symbol, timeframe or "D")
+
     return signal(symbol)
 
 
@@ -82,3 +88,41 @@ def execute_recap():
 def execute_forex_test(symbol, timeframe="D"):
     from strategies.forex_indicators import get_forex_indicators
     return get_forex_indicators(symbol, timeframe)
+
+
+def execute_forex_watchlist(action, symbol=None):
+    from core.forex_watchlist import add, remove, show
+
+    action = action.lower()
+
+    if action == "list" or action == "":
+        return show()
+
+    if action == "add":
+        if not symbol:
+            return {
+                "success": False,
+                "message": "Usage: /forex watchlist add SYMBOL",
+                "data": {},
+            }
+        return add(symbol)
+
+    if action == "remove":
+        if not symbol:
+            return {
+                "success": False,
+                "message": "Usage: /forex watchlist remove SYMBOL",
+                "data": {},
+            }
+        return remove(symbol)
+
+    return {
+        "success": False,
+        "message": "Usage: /forex watchlist | add SYMBOL | remove SYMBOL",
+        "data": {},
+    }
+
+
+def execute_forex_overview():
+    from core.forex_overview import build_forex_overview
+    return build_forex_overview()

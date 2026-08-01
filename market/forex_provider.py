@@ -78,3 +78,24 @@ def get_forex_candles(symbol, timeframe="D", outputsize=100):
     except Exception as e:
         logger.error(f"TwelveData error for {normalized_symbol}: {e}")
         return error(FRIENDLY_ERROR)
+
+
+FOREX_CURRENCY_CODES = {
+    "EUR", "USD", "GBP", "JPY", "AUD", "CHF", "CAD", "NZD",
+    "SEK", "NOK", "DKK", "SGD", "HKD", "MXN", "ZAR", "TRY",
+}
+
+
+def is_forex_symbol(raw_symbol):
+    symbol = raw_symbol.upper().replace(" ", "")
+
+    if "/" in symbol:
+        parts = symbol.split("/")
+        return len(parts) == 2 and parts[0] in FOREX_CURRENCY_CODES and parts[1] in FOREX_CURRENCY_CODES
+
+    if len(symbol) == 6:
+        base = symbol[:3]
+        quote = symbol[3:]
+        return base in FOREX_CURRENCY_CODES and quote in FOREX_CURRENCY_CODES
+
+    return False
