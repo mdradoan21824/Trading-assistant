@@ -1,3 +1,5 @@
+import time
+
 from core.response import success
 from storage.forex_watchlist import get_forex_watchlist
 from core.forex_signal import forex_signal
@@ -8,7 +10,10 @@ def build_forex_overview():
 
     watchlist_items = []
 
-    for sym in symbols:
+    for i, sym in enumerate(symbols):
+        if i > 0:
+            time.sleep(2)
+
         result = forex_signal(sym, "D")
 
         if not result["success"]:
