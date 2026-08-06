@@ -126,3 +126,13 @@ def execute_forex_watchlist(action, symbol=None):
 def execute_forex_overview():
     from core.forex_overview import build_forex_overview
     return build_forex_overview()
+
+
+def execute_simulation_status():
+    from core.simulation import get_simulation_status
+    return get_simulation_status()
+
+
+def execute_simulation_history():
+    from core.simulation import get_simulation_history
+    return get_simulation_history()

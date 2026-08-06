@@ -4,6 +4,7 @@ from storage.watchlist import get_watchlist
 from storage.signal_history import get_last_stages, save_last_stages
 from core.signal import signal
 from storage.signal_log import log_signal
+from core.simulation import process_signal
 
 
 def build_overview():
@@ -41,6 +42,7 @@ def build_overview():
 
         if current_stage == 4 and direction in ("BUY", "SELL"):
             log_signal(sym, direction, data["close"])
+            process_signal(sym, direction, data["close"])
 
         new_stages[sym] = current_stage
 

@@ -10,6 +10,8 @@ from core.commands import (
     execute_forex_test,
     execute_forex_watchlist,
     execute_forex_overview,
+    execute_simulation_status,
+    execute_simulation_history,
 )
 
 
@@ -71,6 +73,14 @@ def process_message(text, user=None):
             "message": "Usage: /forex watchlist | /forex overview",
             "data": {},
         }
+
+    if command == "simulation":
+        subcommand = parts[1].lower() if len(parts) > 1 else "status"
+
+        if subcommand == "history":
+            return execute_simulation_history()
+
+        return execute_simulation_status()
 
     if command == "overview":
         return execute_overview()

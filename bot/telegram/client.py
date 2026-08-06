@@ -323,6 +323,106 @@ class TelegramService:
             "/forex overview"
         )
 
+    async def simulation(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        subcommand = context.args[0].lower() if context.args else "status"
+
+        command = f"/simulation {subcommand}"
+        response = handle_message(command)
+
+        if not response["success"]:
+            await update.message.reply_text(response["message"])
+            return
+
+        data = response["data"]
+
+        if subcommand == "history":
+            if not data["has_data"]:
+                await update.message.reply_text(
+                    "📈 No closed trades yet.\n"
+                    "Check back after some BUY/SELL signals complete a full cycle."
+                )
+                return
+
+            text = "📈 Simulation History\n\n"
+            text += f"Total Trades : {data['total_trades']}\n"
+            text += f"Win Rate     : {data['win_rate']}%\n"
+            text += f"Total P/L    : ${data['total_profit']}\n\n"
+            text += "Recent Trades:\n```\n"
+
+            for t in data["recent_trades"]:
+                sign = "+" if t["profit"] >= 0 else ""
+                text += f"{t['symbol']:<6} {sign}${t['profit']} ({sign}{t['profit_pct']}%)\n"
+
+            text += "```"
+
+            await update.message.reply_text(text, parse_mode="Markdown")
+            return
+
+        text = "📊 Simulation Status\n\n"
+        text += f"💰 Balance: ${data['balance']}\n\n"
+
+        positions = data["open_positions"]
+
+        if not positions:
+            text += "No open positions."
+        else:
+            text += "Open Positions:\n```\n"
+            for p in positions:
+                text += f"{p['symbol']:<6} Qty: {p['quantity']} @ ${p['entry_price']}\n"
+            text += "```"
+
+        await update.message.reply_text(text, parse_mode="Markdown")
+
+    async def simulation(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        subcommand = context.args[0].lower() if context.args else "status"
+
+        command = f"/simulation {subcommand}"
+        response = handle_message(command)
+
+        if not response["success"]:
+            await update.message.reply_text(response["message"])
+            return
+
+        data = response["data"]
+
+        if subcommand == "history":
+            if not data["has_data"]:
+                await update.message.reply_text(
+                    "📈 No closed trades yet.\n"
+                    "Check back after some BUY/SELL signals complete a full cycle."
+                )
+                return
+
+            text = "📈 Simulation History\n\n"
+            text += f"Total Trades : {data['total_trades']}\n"
+            text += f"Win Rate     : {data['win_rate']}%\n"
+            text += f"Total P/L    : ${data['total_profit']}\n\n"
+            text += "Recent Trades:\n```\n"
+
+            for t in data["recent_trades"]:
+                sign = "+" if t["profit"] >= 0 else ""
+                text += f"{t['symbol']:<6} {sign}${t['profit']} ({sign}{t['profit_pct']}%)\n"
+
+            text += "```"
+
+            await update.message.reply_text(text, parse_mode="Markdown")
+            return
+
+        text = "📊 Simulation Status\n\n"
+        text += f"💰 Balance: ${data['balance']}\n\n"
+
+        positions = data["open_positions"]
+
+        if not positions:
+            text += "No open positions."
+        else:
+            text += "Open Positions:\n```\n"
+            for p in positions:
+                text += f"{p['symbol']:<6} Qty: {p['quantity']} @ ${p['entry_price']}\n"
+            text += "```"
+
+        await update.message.reply_text(text, parse_mode="Markdown")
+
     async def recap(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         response = handle_message("/recap")
 
@@ -579,6 +679,8 @@ class TelegramService:
         app.add_handler(CommandHandler("analyze", self.analyze))
         app.add_handler(CommandHandler("recap", self.recap))
         app.add_handler(CommandHandler("forex", self.forex))
+        app.add_handler(CommandHandler("simulation", self.simulation))
+        app.add_handler(CommandHandler("simulation", self.simulation))
         app.add_handler(CommandHandler("forextest", self.forextest))
 
         app.job_queue.run_daily(
